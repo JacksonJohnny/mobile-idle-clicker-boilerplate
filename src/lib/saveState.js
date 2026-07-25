@@ -1,4 +1,5 @@
 import { CLICKER_GENERATORS } from '../data/generators.js';
+import { toNonNegativeInt } from './prestige.js';
 
 /**
  * Canonical store generator ids are `upgrade-N` (stable for saves).
@@ -169,16 +170,17 @@ export function normalizeSaveState(state) {
   next.boosts = dedupeBoosts(remapIds(next.boosts, BOOST_ID_ALIASES).filter((entry) => entry?.id));
 
   // Prestige currency rename: stars (v7) → ascensionTokens (v8+). Keep both paths safe.
-  const fromTokens = Number.isFinite(Number(next.ascensionTokens)) ? Math.max(0, Number(next.ascensionTokens)) : null;
-  const fromStars = Number.isFinite(Number(next.stars)) ? Math.max(0, Number(next.stars)) : null;
-  next.ascensionTokens = fromTokens ?? fromStars ?? 0;
+  // Also recovers int32 wrap from legacy `| 0` (negative token counts in old saves).
+  if (next.ascensionTokens !== undefined && next.ascensionTokens !== null) {
+    next.ascensionTokens = toNonNegativeInt(next.ascensionTokens, { recoverInt32Wrap: true });
+  } else if (next.stars !== undefined && next.stars !== null) {
+    next.ascensionTokens = toNonNegativeInt(next.stars, { recoverInt32Wrap: true });
+  } else {
+    next.ascensionTokens = 0;
+  }
   delete next.stars;
 
-  if (next.prestigeCount === undefined || !Number.isFinite(Number(next.prestigeCount))) {
-    next.prestigeCount = 0;
-  } else {
-    next.prestigeCount = Math.max(0, Number(next.prestigeCount));
-  }
+  next.prestigeCount = toNonNegativeInt(next.prestigeCount, { recoverInt32Wrap: true });
 
   if (!Array.isArray(next.unlockedAchievements)) {
     next.unlockedAchievements = [];
