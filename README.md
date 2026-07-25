@@ -141,7 +141,7 @@ Catálogo padrão: `tap-power` + `auto-tap`, geradores `upgrade-1`…`upgrade-20
 
 - Progresso por `Date.now` (wall-clock), não só pelo timer do Phaser.
 - Hide / `pagehide` / `beforeunload`: aplica pendente e salva.
-- Volta à aba: se ausente ≥ **60s**, modal “Welcome back”.
+- Volta à aba: se ausente ≥ **1s**, modal “Welcome back”.
 - Load: `hydrate` aplica desde `savedAt` em um passo.
 - Cap: `LOOP_CONFIG.maxOfflineSeconds` (`null` = sem teto).
 
