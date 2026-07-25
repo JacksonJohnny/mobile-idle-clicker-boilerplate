@@ -52,7 +52,7 @@ export function applyWallClockProgress(scene, options = {}) {
     return;
   }
 
-  if (options.showOfflineReturn && cappedSeconds >= 60) {
+  if (options.showOfflineReturn && cappedSeconds >= 1) {
     showOfflineReturn(scene, { gain, elapsedSeconds: Math.floor(cappedSeconds) });
   }
 
