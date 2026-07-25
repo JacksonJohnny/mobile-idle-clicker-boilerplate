@@ -1,9 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import {
-  calculateAscensionTokenGain,
-  getAscensionTokenIdleMultiplier,
-  toNonNegativeInt,
-} from './prestige.js';
+import { calculateAscensionTokenGain, getAscensionTokenIdleMultiplier, toNonNegativeInt } from './prestige.js';
 
 describe('prestige', () => {
   it('gains no tokens below 1M coins this ascension', () => {

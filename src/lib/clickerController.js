@@ -1,11 +1,7 @@
 import Decimal from 'decimal.js';
 import { AUTO_TAP_INTERVAL_SECONDS } from '../data/upgrades.js';
 import { ACHIEVEMENTS, getAchievementIdleMultiplier } from '../data/achievements.js';
-import {
-  calculateAscensionTokenGain,
-  getAscensionTokenIdleMultiplier,
-  toNonNegativeInt,
-} from './prestige.js';
+import { calculateAscensionTokenGain, getAscensionTokenIdleMultiplier, toNonNegativeInt } from './prestige.js';
 import { BOOST_ID_ALIASES, UPGRADE_ID_ALIASES, normalizeSaveState } from './saveState.js';
 import {
   calculateBulkUpgradeCost,
