@@ -2,7 +2,7 @@ import Decimal from 'decimal.js';
 import { AUTO_TAP_INTERVAL_SECONDS } from '../data/upgrades.js';
 import { ACHIEVEMENTS, getAchievementIdleMultiplier } from '../data/achievements.js';
 import { calculateAscensionTokenGain, getAscensionTokenIdleMultiplier, toNonNegativeInt } from './prestige.js';
-import { BOOST_ID_ALIASES, UPGRADE_ID_ALIASES, normalizeSaveState } from './saveState.js';
+import { normalizeSaveState } from './saveState.js';
 import {
   calculateBulkUpgradeCost,
   calculateStats,
@@ -107,39 +107,14 @@ function findLoadedUpgrade(loadedUpgrades, catalogId) {
   if (!Array.isArray(loadedUpgrades)) {
     return null;
   }
-
-  const direct = loadedUpgrades.find((entry) => entry.id === catalogId);
-  const legacyId = Object.keys(UPGRADE_ID_ALIASES).find((oldId) => UPGRADE_ID_ALIASES[oldId] === catalogId);
-  const legacy = legacyId ? loadedUpgrades.find((entry) => entry.id === legacyId) : null;
-  const aliased = loadedUpgrades.find((entry) => UPGRADE_ID_ALIASES[entry.id] === catalogId);
-
-  const candidates = [direct, legacy, aliased].filter(Boolean);
-  if (candidates.length === 0) {
-    return null;
-  }
-
-  return candidates.reduce((best, entry) => {
-    const level = Number.isFinite(Number(entry.level)) ? Number(entry.level) : 0;
-    const bestLevel = Number.isFinite(Number(best.level)) ? Number(best.level) : 0;
-    return level >= bestLevel ? entry : best;
-  });
+  return loadedUpgrades.find((entry) => entry.id === catalogId) ?? null;
 }
 
 function findLoadedBoost(loadedBoosts, catalogId) {
   if (!Array.isArray(loadedBoosts)) {
     return null;
   }
-
-  const direct = loadedBoosts.find((entry) => entry.id === catalogId);
-  if (direct?.purchased) {
-    return direct;
-  }
-
-  const legacyId = Object.keys(BOOST_ID_ALIASES).find((oldId) => BOOST_ID_ALIASES[oldId] === catalogId);
-  const legacy = legacyId ? loadedBoosts.find((entry) => entry.id === legacyId) : null;
-  const aliased = loadedBoosts.find((entry) => BOOST_ID_ALIASES[entry.id] === catalogId);
-
-  return [direct, legacy, aliased].find((entry) => entry?.purchased) ?? direct ?? legacy ?? aliased ?? null;
+  return loadedBoosts.find((entry) => entry.id === catalogId) ?? null;
 }
 
 function mergeStateFromSave(state, loaded) {
@@ -220,11 +195,11 @@ function buyUpgrade(state, upgradeId, buyAmount = 1) {
   };
 }
 
-function buyMetaUpgrade(state, boostId) {
-  const boost = state.boosts.find((item) => item.id === boostId);
+function buyMetaUpgrade(state, metaId) {
+  const boost = state.boosts.find((item) => item.id === metaId);
 
   if (!boost || boost.purchased) {
-    return { ok: false, reason: boost ? 'already-purchased' : 'missing-boost' };
+    return { ok: false, reason: boost ? 'already-purchased' : 'missing-meta' };
   }
 
   if (!isMetaUpgradeUnlocked(state, boost)) {
@@ -272,10 +247,7 @@ function applyAutoTaps(state, seconds = 1, intervalSeconds = AUTO_TAP_INTERVAL_S
   state.autoTapProgress -= waves * intervalSeconds;
   const taps = waves * level;
   const whiteClickEquivalents = getAutoTapWaveWhiteEquivalents(level).times(waves);
-  const gain = state.perClick.times(whiteClickEquivalents);
-  state.coins = state.coins.plus(gain);
-  state.totalCoinsEarned = toDecimal(state.totalCoinsEarned).plus(gain);
-  state.coinsThisAscension = toDecimal(state.coinsThisAscension).plus(gain);
+  const gain = creditCoins(state, state.perClick.times(whiteClickEquivalents));
   state.totalClicks += Number(whiteClickEquivalents.toFixed(0));
 
   return { gain, taps };
@@ -387,8 +359,8 @@ export function createClickerController(upgrades, boosts = []) {
       }
       return result;
     },
-    tryBuyMetaUpgrade(boostId) {
-      const result = buyMetaUpgrade(state, boostId);
+    tryBuyMetaUpgrade(metaId) {
+      const result = buyMetaUpgrade(state, metaId);
       if (result.ok) {
         syncAchievements(state);
       }

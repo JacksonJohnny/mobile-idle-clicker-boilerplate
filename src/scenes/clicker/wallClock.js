@@ -1,9 +1,15 @@
 import { LOOP_CONFIG } from '../../config/gameConfig.js';
 import { COLORS } from '../../config/theme.js';
-import { formatCoins, getAutoTapCursorCount } from '../../lib/clickerMath.js';
+import { formatCoins, getAutoTapLevel } from '../../lib/clickerMath.js';
 import { getAutoTapCursorMultiplier } from '../../lib/autoTapProgress.js';
 import { showOfflineReturn } from './overlays.js';
 import { PAGE } from './pageNavigation.js';
+
+/** Offline welcome modal: only when there was gain and the player was away ≥ 1s. */
+export function shouldShowOfflineReturn({ gain, elapsedSeconds }) {
+  const hasGain = typeof gain?.gt === 'function' ? gain.gt(0) : Number(gain) > 0;
+  return hasGain && elapsedSeconds >= 1;
+}
 
 export function applyWallClockProgress(scene, options = {}) {
   const nowMs = Date.now();
@@ -29,7 +35,7 @@ export function applyWallClockProgress(scene, options = {}) {
   const autoTaps = scene.state.lastAutoTaps ?? 0;
 
   if (autoTaps > 0 && scene.activePage === PAGE.TAP) {
-    const autoTapLevel = getAutoTapCursorCount(scene.state);
+    const autoTapLevel = getAutoTapLevel(scene.state);
     const visibleCursors = Math.min(autoTapLevel, scene.autoTapCursors.maxSlots);
     // Ensure cursors exist for the wave; ClickerScene.updateOrbit repositions after this.
     scene.autoTapCursors.sync(visibleCursors);
@@ -52,7 +58,7 @@ export function applyWallClockProgress(scene, options = {}) {
     return;
   }
 
-  if (options.showOfflineReturn && cappedSeconds >= 1) {
+  if (options.showOfflineReturn && shouldShowOfflineReturn({ gain, elapsedSeconds: cappedSeconds })) {
     showOfflineReturn(scene, { gain, elapsedSeconds: Math.floor(cappedSeconds) });
   }
 

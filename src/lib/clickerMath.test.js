@@ -5,7 +5,7 @@ import {
   calculateUpgradeCost,
   formatCoins,
   formatIdleSharePercent,
-  getGeneratorEfficiencyStarCount,
+  getGeneratorEfficiencyPipCount,
   getGeneratorIdleShare,
   isUpgradeUnlocked,
 } from './clickerMath.js';
@@ -82,7 +82,7 @@ describe('clickerMath', () => {
       ],
     };
 
-    expect(getGeneratorEfficiencyStarCount(state, 'upgrade-1')).toBe(1);
+    expect(getGeneratorEfficiencyPipCount(state, 'upgrade-1')).toBe(1);
     const stats = calculateStats(state);
     expect(stats.perSecond.toString()).toBe('10');
     expect(stats.perClick.toString()).toBe('2');

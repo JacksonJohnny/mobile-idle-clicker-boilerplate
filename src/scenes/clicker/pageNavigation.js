@@ -11,7 +11,6 @@ export const PAGE = {
 };
 
 const MAIN_PAGE_MAX = PAGE.PRESTIGE;
-export const SETTINGS_PAGE = PAGE.SETTINGS;
 
 export function setupPageSwipe(scene) {
   scene.input.on('pointerdown', (pointer) => {
@@ -53,7 +52,7 @@ export function setupPageSwipe(scene) {
 export function beginPageSwipe(scene, pointer) {
   if (
     !scene.gameStarted ||
-    scene.activePage === SETTINGS_PAGE ||
+    scene.activePage === PAGE.SETTINGS ||
     scene.offlineReturn ||
     scene.confirmDialog ||
     pointer.y >= scene.navTop
@@ -67,7 +66,7 @@ export function beginPageSwipe(scene, pointer) {
 export function setActivePage(scene, index) {
   // Keep list cameras hidden while a full-screen modal owns the view.
   if (scene.offlineReturn || scene.confirmDialog) {
-    scene.activePage = Math.min(SETTINGS_PAGE, Math.max(0, index));
+    scene.activePage = Math.min(PAGE.SETTINGS, Math.max(0, index));
     scene.upgradeCamera?.setVisible(false);
     scene.metaCamera?.setVisible(false);
     scene.statusCamera?.setVisible(false);
@@ -77,13 +76,13 @@ export function setActivePage(scene, index) {
     return;
   }
 
-  scene.activePage = Math.min(SETTINGS_PAGE, Math.max(0, index));
+  scene.activePage = Math.min(PAGE.SETTINGS, Math.max(0, index));
   const showMeta = scene.activePage === PAGE.UPGRADE;
   const showStore = scene.activePage === PAGE.STORE;
   const showGame = scene.activePage === PAGE.TAP;
   const showStatus = scene.activePage === PAGE.STATUS;
   const showPrestige = scene.activePage === PAGE.PRESTIGE;
-  const showSettings = scene.activePage === SETTINGS_PAGE;
+  const showSettings = scene.activePage === PAGE.SETTINGS;
 
   scene.gamePage.setVisible(showGame);
   scene.storeTitle.setVisible(showStore);
@@ -126,7 +125,7 @@ export function setActivePage(scene, index) {
   scene.navTabs.forEach((tab) => {
     if (tab.isOverflow) {
       const inOverflow = scene.activePage >= (tab.hiddenStart ?? 0);
-      tab.indicator.setVisible(inOverflow && scene.activePage !== SETTINGS_PAGE);
+      tab.indicator.setVisible(inOverflow && scene.activePage !== PAGE.SETTINGS);
       tab.text.setColor(inOverflow ? COLORS.activeText : COLORS.inactiveText);
       return;
     }

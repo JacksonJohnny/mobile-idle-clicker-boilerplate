@@ -69,10 +69,22 @@ export const COLORS = {
   /** Prestige currency icon (filled square beside the label). */
   ascensionToken: 0x8b5cf6,
   ascensionTokenBorder: 0xc4b5fd,
+  efficiencyPip: '#ffd43b',
+  scrollTrack: 0x0b2233,
+  scrollThumb: 0x76c5ff,
 };
 
 export const UI_LAYOUT = {
   navHeight: 86,
   tapCenterY: 495,
   sectionTitleY: 252,
+  pointerDragThreshold: 14,
+  feedbackFloatY: 355,
+  feedbackFloatFontSize: '34px',
+  feedbackFloatRise: 70,
+  feedbackFloatDuration: 650,
+  coreGlowRadius: 136,
+  coreRingRadius: 124,
+  coreButtonRadius: 116,
+  coreInnerRadius: 84,
 };

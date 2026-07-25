@@ -1,9 +1,10 @@
-import { COLORS, FONT_FAMILIES, UI_LAYOUT } from '../config/theme.js';
+import { COLORS, FONT_FAMILIES } from '../config/theme.js';
 import { UI_TEXT } from '../config/uiText.js';
 import { ACHIEVEMENTS } from '../data/achievements.js';
 import { formatCoins } from '../lib/clickerMath.js';
 import { getAchievementListLines } from './achievementLines.js';
 import { createAscensionTokenBadge } from './ascensionTokenBadge.js';
+import { buildSectionTitle } from './sectionTitle.js';
 
 const LINE_HEIGHT = 28;
 
@@ -12,13 +13,7 @@ function fill(template, values) {
 }
 
 export function buildStatusView({ scene, content, listTop }) {
-  const title = scene.add
-    .text(28, UI_LAYOUT.sectionTitleY, UI_TEXT.statusTitle, {
-      fontFamily: FONT_FAMILIES.display,
-      fontSize: '24px',
-      color: COLORS.accentText,
-    })
-    .setOrigin(0, 0.5);
+  const title = buildSectionTitle(scene, UI_TEXT.statusTitle);
 
   const items = [];
 

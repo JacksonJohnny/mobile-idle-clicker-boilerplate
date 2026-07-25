@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { META_UPGRADES } from '../data/metaUpgrades.js';
 import { CLICKER_GENERATORS } from '../data/generators.js';
 import { CLICK_UPGRADES } from '../data/upgrades.js';
-import { getGeneratorEfficiencyStarCount, isUpgradeUnlocked } from './clickerMath.js';
+import { getGeneratorEfficiencyPipCount, isUpgradeUnlocked } from './clickerMath.js';
 import { createClickerController } from './clickerController.js';
 
 const createController = () => createClickerController([...CLICK_UPGRADES, ...CLICKER_GENERATORS], META_UPGRADES);
@@ -74,11 +74,11 @@ describe('clickerController', () => {
     });
 
     expect(controller.state.perSecond.toString()).toBe('5');
-    expect(getGeneratorEfficiencyStarCount(controller.state, 'upgrade-1')).toBe(0);
+    expect(getGeneratorEfficiencyPipCount(controller.state, 'upgrade-1')).toBe(0);
     expect(controller.tryBuyMetaUpgrade('upgrade-1-efficiency-1')).toMatchObject({ ok: true });
     // ×2 efficiency +1% achievement (Tuned Up)
     expect(controller.state.perSecond.toString()).toBe('10.1');
-    expect(getGeneratorEfficiencyStarCount(controller.state, 'upgrade-1')).toBe(1);
+    expect(getGeneratorEfficiencyPipCount(controller.state, 'upgrade-1')).toBe(1);
   });
 
   it('applies global production and Clicks per second tap meta upgrades', () => {

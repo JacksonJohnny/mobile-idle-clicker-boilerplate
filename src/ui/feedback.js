@@ -1,3 +1,5 @@
+import { FONT_FAMILIES, UI_LAYOUT } from '../config/theme.js';
+
 export function createFeedbackService(scene, settings) {
   let audioContext = null;
 
@@ -27,11 +29,11 @@ export function createFeedbackService(scene, settings) {
     }
   }
 
-  function spawnFloatingText(text, color = '#ffffff', y = 355, xOffset = 0) {
+  function spawnFloatingText(text, color = '#ffffff', y = UI_LAYOUT.feedbackFloatY, xOffset = 0) {
     const floatText = scene.add
       .text(scene.scale.width / 2 + xOffset, y, text, {
-        fontFamily: 'Nunito, sans-serif',
-        fontSize: '34px',
+        fontFamily: FONT_FAMILIES.body,
+        fontSize: UI_LAYOUT.feedbackFloatFontSize,
         color,
         fontStyle: '800',
       })
@@ -41,13 +43,17 @@ export function createFeedbackService(scene, settings) {
     scene.metaCamera?.ignore(floatText);
     scene.tweens.add({
       targets: floatText,
-      y: y - 70,
+      y: y - UI_LAYOUT.feedbackFloatRise,
       alpha: 0,
-      duration: 650,
+      duration: UI_LAYOUT.feedbackFloatDuration,
       ease: 'Cubic.Out',
       onComplete: () => floatText.destroy(),
     });
   }
 
-  return { playPurchase, spawnFloatingText };
+  function shakeDeny() {
+    scene.cameras.main.shake(120, 0.004);
+  }
+
+  return { playPurchase, spawnFloatingText, shakeDeny };
 }

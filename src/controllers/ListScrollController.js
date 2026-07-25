@@ -1,3 +1,5 @@
+import { COLORS } from '../config/theme.js';
+
 const clamp = (value, min, max) => Math.min(Math.max(value, min), max);
 const AXIS_LOCK_PX = 12;
 
@@ -44,11 +46,18 @@ export class ListScrollController {
 
     // Visual-only scrollbar — scroll happens by dragging the list, not the thumb.
     this.track = scene.add
-      .rectangle(trackX, (layout.panelTopY + layout.panelBottomY) / 2, 8, layout.visibleListHeight, 0x0b2233, 0.9)
+      .rectangle(
+        trackX,
+        (layout.panelTopY + layout.panelBottomY) / 2,
+        8,
+        layout.visibleListHeight,
+        COLORS.scrollTrack,
+        0.9,
+      )
       .setStrokeStyle(1, 0x2f5f7c, 0.9)
       .setDepth(5);
     this.thumb = scene.add
-      .rectangle(trackX, layout.listTop + this.thumbHeight / 2, 12, this.thumbHeight, 0x76c5ff, 0.95)
+      .rectangle(trackX, layout.listTop + this.thumbHeight / 2, 12, this.thumbHeight, COLORS.scrollThumb, 0.95)
       .setStrokeStyle(1, 0xb5e5ff, 1)
       .setDepth(6);
 

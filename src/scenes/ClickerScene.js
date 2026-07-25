@@ -1,18 +1,20 @@
 import Phaser from 'phaser';
 import { LOOP_CONFIG, SCENE_KEY } from '../config/gameConfig.js';
-import { COLORS, FONT_FAMILIES, UI_LAYOUT } from '../config/theme.js';
+import { COLORS, UI_LAYOUT } from '../config/theme.js';
 import { UI_TEXT } from '../config/uiText.js';
 import { META_UPGRADES } from '../data/metaUpgrades.js';
 import { CLICKER_GENERATORS } from '../data/generators.js';
 import { CLICK_UPGRADES } from '../data/upgrades.js';
-import { formatCoins, getAutoTapCursorCount } from '../lib/clickerMath.js';
+import { formatCoins, getAutoTapLevel } from '../lib/clickerMath.js';
 import { createClickerController } from '../lib/clickerController.js';
 
-import { createFeedbackService } from '../services/feedbackService.js';
 import { loadGameState, saveGameState } from '../services/saveStorage.js';
 import { loadSettings, saveSettings } from '../services/settingsStorage.js';
 import { getNavHeight } from '../ui/bottomNavigation.js';
 import { createAutoTapCursorLayer } from '../ui/autoTapCursors.js';
+import { createFeedbackService } from '../ui/feedback.js';
+import { wasTapNotDrag } from '../ui/pointer.js';
+import { buildTapHud } from '../ui/tapHud.js';
 import handCursorUrl from '../assets/hand-cursor.png';
 import {
   destroyStartOverlay,
@@ -35,7 +37,6 @@ import {
   setActivePage as setActivePageHelper,
   setupPageSwipe,
   PAGE,
-  SETTINGS_PAGE,
 } from './clicker/pageNavigation.js';
 import { normalizeBuyAmount } from '../config/buyAmounts.js';
 import {
@@ -79,55 +80,15 @@ export class ClickerScene extends Phaser.Scene {
     this.gamePage = this.add.container(0, 0);
     this.settingsPage = this.add.container(0, 0);
 
-    this.add.rectangle(width / 2, height / 2, width, height, COLORS.background, 0.2);
-
-    this.add
-      .text(width / 2, 48, UI_TEXT.gameTitle, {
-        fontFamily: FONT_FAMILIES.display,
-        fontSize: '38px',
-        color: COLORS.accentText,
-        stroke: COLORS.titleStroke,
-        strokeThickness: 5,
-      })
-      .setOrigin(0.5);
-
     this.hudMaxWidth = width - 34;
+    const tapHud = buildTapHud(this);
+    this.coinsText = tapHud.coinsText;
+    this.statsText = tapHud.statsText;
+    this.coreGlow = tapHud.coreGlow;
+    this.coreButton = tapHud.coreButton;
+    this.buttonLabel = tapHud.buttonLabel;
+    this.tapButtonVisuals = tapHud.tapButtonVisuals;
 
-    this.coinsText = this.add
-      .text(width / 2, 134, '', {
-        fontFamily: FONT_FAMILIES.body,
-        fontSize: '44px',
-        color: COLORS.whiteText,
-        fontStyle: '800',
-      })
-      .setOrigin(0.5);
-
-    this.statsText = this.add
-      .text(width / 2, 202, '', {
-        fontFamily: FONT_FAMILIES.body,
-        fontSize: '22px',
-        color: COLORS.statsText,
-      })
-      .setOrigin(0.5);
-
-    this.coreGlow = this.add.circle(width / 2, this.tapCenterY, 136, COLORS.coreGlow, 0.18);
-    const coreRing = this.add
-      .circle(width / 2, this.tapCenterY, 124, COLORS.coreRing, 0.12)
-      .setStrokeStyle(3, COLORS.coreRingBorder, 0.5);
-    this.coreButton = this.add
-      .circle(width / 2, this.tapCenterY, 116, COLORS.coreButton)
-      .setInteractive({ useHandCursor: true });
-    const coreInner = this.add.circle(width / 2, this.tapCenterY, 84, COLORS.coreInner);
-
-    this.buttonLabel = this.add
-      .text(width / 2, this.tapCenterY, UI_TEXT.tapButton, {
-        fontFamily: FONT_FAMILIES.display,
-        fontSize: '46px',
-        color: COLORS.coreLabel,
-      })
-      .setOrigin(0.5);
-
-    this.tapButtonVisuals = [coreRing, this.coreButton, coreInner, this.buttonLabel];
     this.autoTapCursors = createAutoTapCursorLayer(this, width / 2, this.tapCenterY);
     this.gamePage.add([this.coreGlow, ...this.tapButtonVisuals, this.autoTapCursors.layer]);
 
@@ -137,12 +98,10 @@ export class ClickerScene extends Phaser.Scene {
     });
 
     this.coreButton.on('pointerup', (pointer) => {
-      const moved =
-        this.corePointerDown &&
-        Phaser.Math.Distance.Between(this.corePointerDown.x, this.corePointerDown.y, pointer.x, pointer.y) > 14;
+      const tapped = wasTapNotDrag(this.corePointerDown, pointer);
       this.corePointerDown = null;
 
-      if (!this.gameStarted || moved || this.activePage !== PAGE.TAP) {
+      if (!this.gameStarted || !tapped || this.activePage !== PAGE.TAP) {
         return;
       }
 
@@ -154,7 +113,11 @@ export class ClickerScene extends Phaser.Scene {
         duration: 120,
         ease: 'Back.Out',
       });
-      this.feedback.spawnFloatingText(`+${formatCoins(gain)}`, COLORS.whiteText, this.tapCenterY);
+      this.feedback.spawnFloatingText(
+        UI_TEXT.floatingGain.replace('{amount}', formatCoins(gain)),
+        COLORS.whiteText,
+        this.tapCenterY,
+      );
       this.renderState();
     });
 
@@ -228,7 +191,7 @@ export class ClickerScene extends Phaser.Scene {
 
     const result = this.engine.tryBuyMetaUpgrade(meta.id);
     if (!result.ok) {
-      this.cameras.main.shake(120, 0.004);
+      this.feedback.shakeDeny();
       return;
     }
 
@@ -243,7 +206,7 @@ export class ClickerScene extends Phaser.Scene {
     }
     const preview = this.engine.getPrestigePreview();
     if (preview.ascensionTokensGain <= 0) {
-      this.cameras.main.shake(120, 0.004);
+      this.feedback.shakeDeny();
       return;
     }
     showPrestigeConfirm(this, () => this.doPrestige());
@@ -255,7 +218,7 @@ export class ClickerScene extends Phaser.Scene {
     }
     const result = this.engine.tryPrestige();
     if (!result.ok) {
-      this.cameras.main.shake(120, 0.004);
+      this.feedback.shakeDeny();
       return;
     }
     this.feedback.playPurchase();
@@ -273,7 +236,7 @@ export class ClickerScene extends Phaser.Scene {
 
     if (!result.ok) {
       if (options.shakeOnFailure !== false) {
-        this.cameras.main.shake(120, 0.004);
+        this.feedback.shakeDeny();
       }
       return false;
     }
@@ -285,7 +248,7 @@ export class ClickerScene extends Phaser.Scene {
   }
 
   toggleSetting(settingKey) {
-    if (!this.gameStarted || this.activePage !== SETTINGS_PAGE) {
+    if (!this.gameStarted || this.activePage !== PAGE.SETTINGS) {
       return;
     }
 
@@ -299,20 +262,20 @@ export class ClickerScene extends Phaser.Scene {
       return;
     }
 
-    if (this.activePage === SETTINGS_PAGE) {
+    if (this.activePage === PAGE.SETTINGS) {
       this.setActivePage(this.previousMainPage ?? PAGE.TAP);
       return;
     }
 
     this.previousMainPage = this.activePage;
-    this.setActivePage(SETTINGS_PAGE);
+    this.setActivePage(PAGE.SETTINGS);
   }
 
   selectPage(index) {
     if (this.offlineReturn || this.confirmDialog) {
       return;
     }
-    if (this.activePage === SETTINGS_PAGE && index !== SETTINGS_PAGE) {
+    if (this.activePage === PAGE.SETTINGS && index !== PAGE.SETTINGS) {
       this.previousMainPage = index;
     }
     if (this.gameStarted) {
@@ -360,9 +323,13 @@ export class ClickerScene extends Phaser.Scene {
   }
 
   renderState() {
-    this.coinsText.setText(`${formatCoins(this.state.coins, { rate: this.state.perSecond })} coins`);
+    this.coinsText.setText(
+      UI_TEXT.hudCoins.replace('{coins}', formatCoins(this.state.coins, { rate: this.state.perSecond })),
+    );
     this.statsText.setText(
-      `per tap: ${formatCoins(this.state.perClick)} | coins / sec: ${formatCoins(this.state.perSecond)}`,
+      UI_TEXT.hudStats
+        .replace('{perTap}', formatCoins(this.state.perClick))
+        .replace('{perSecond}', formatCoins(this.state.perSecond)),
     );
     this.fitHudText(this.coinsText);
     this.fitHudText(this.statsText);
@@ -390,7 +357,7 @@ export class ClickerScene extends Phaser.Scene {
     this.applyWallClockProgress();
 
     // Always reposition last so orbit layout matches the final cursor count.
-    const cursorCount = onTapPage ? getAutoTapCursorCount(this.state) : 0;
+    const cursorCount = onTapPage ? getAutoTapLevel(this.state) : 0;
     this.autoTapCursors.updateOrbit(cursorCount, this.time.now);
   }
 
@@ -403,7 +370,9 @@ export class ClickerScene extends Phaser.Scene {
   }
 
   persist() {
-    saveGameState(this.engine.snapshot());
+    if (!saveGameState(this.engine.snapshot())) {
+      this.saveFailed = true;
+    }
   }
 
   showOfflineReturn(offline) {

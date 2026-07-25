@@ -40,9 +40,15 @@
     "capacitor",
     "mobile"
   ],
-  "author": "",
+  "author": {
+    "name": "Jackson Johnny",
+    "url": "https://github.com/JacksonJohnny"
+  },
   "license": "ISC",
   "description": "Reusable mobile-first idle clicker boilerplate built with Phaser and Capacitor.",
+  "engines": {
+    "node": ">=20"
+  },
   "dependencies": {
     "@capacitor/android": "^8.4.2",
     "@capacitor/core": "^8.4.2",

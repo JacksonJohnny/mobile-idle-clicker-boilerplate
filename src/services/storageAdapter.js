@@ -18,8 +18,10 @@ export function storageGetItem(key) {
 export function storageSetItem(key, value) {
   try {
     localStorage.setItem(key, value);
+    return true;
   } catch (_error) {
     // Ignore quota / private mode failures.
+    return false;
   }
 }
 

@@ -229,7 +229,7 @@ function getPurchasedBoosts(boosts) {
 }
 
 /** Yellow store efficiency pips: one per purchased generator efficiency meta-upgrade. */
-export function getGeneratorEfficiencyStarCount(state, generatorId) {
+export function getGeneratorEfficiencyPipCount(state, generatorId) {
   if (!state?.boosts || !generatorId) {
     return 0;
   }
@@ -346,10 +346,6 @@ export function calculateStats(state) {
 
 export function getAutoTapLevel(state) {
   return state.upgrades.find((upgrade) => upgrade.type === 'auto_tap')?.level ?? 0;
-}
-
-export function getAutoTapCursorCount(state) {
-  return getAutoTapLevel(state);
 }
 
 /** White-click equivalents produced by one Auto Tap wave at the given level. */

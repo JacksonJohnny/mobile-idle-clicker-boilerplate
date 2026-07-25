@@ -11,7 +11,7 @@ export const SCENE_KEY = 'clicker-scene';
 export const GAME_CONFIG = {
   width: 540,
   height: 960,
-  backgroundColor: '#111822',
+  backgroundColor: '#081018',
 };
 
 /** null = no offline earnings cap */

@@ -5,6 +5,8 @@ export const AUTO_TAP_CURSOR_DISPLAY_H = 44;
 export const AUTO_TAP_RING_GAP = AUTO_TAP_CURSOR_DISPLAY_H + 2;
 /** Two rings fill first; further Auto Tap levels recolor instead of adding rings. */
 export const AUTO_TAP_VISUAL_RING_COUNT = 2;
+/** Economy cap for Auto Tap cursor slots (independent of visual ring math). */
+export const AUTO_TAP_MAX_SLOTS = 63;
 
 /** Tier 0 = base white; each full pass around the ring advances one tier (then wraps tint). */
 export const AUTO_TAP_CURSOR_TINTS = [
@@ -20,25 +22,15 @@ export const AUTO_TAP_CURSOR_TINTS = [
   0xffe08a, // amber — 10x
 ];
 
-function ringCapacity(radius) {
-  return Math.max(12, Math.floor((Math.PI * 2 * radius) / AUTO_TAP_CURSOR_ARC));
-}
-
 export function getMaxAutoTapCursorSlots() {
-  let total = 0;
-
-  for (let ring = 0; ring < AUTO_TAP_VISUAL_RING_COUNT; ring += 1) {
-    total += ringCapacity(AUTO_TAP_ORBIT_RADIUS + ring * AUTO_TAP_RING_GAP);
-  }
-
-  return total;
+  return AUTO_TAP_MAX_SLOTS;
 }
 
 /** Absolute color tier for a cursor slot (0 = white). Tint wraps; power keeps doubling. */
 export function getAutoTapCursorTier(level, index, maxSlots = getMaxAutoTapCursorSlots()) {
-  const safeLevel = Math.max(0, level | 0);
-  const slots = Math.max(1, maxSlots | 0);
-  const safeIndex = Math.max(0, index | 0);
+  const safeLevel = Math.max(0, Math.floor(Number(level) || 0));
+  const slots = Math.max(1, Math.floor(Number(maxSlots) || 0));
+  const safeIndex = Math.max(0, Math.floor(Number(index) || 0));
 
   if (safeLevel <= slots) {
     return 0;
@@ -58,24 +50,4 @@ export function getAutoTapCursorTint(level, index, maxSlots = getMaxAutoTapCurso
 /** White = 1x, blue = 2x, mint = 3x, … (tier + 1). */
 export function getAutoTapCursorMultiplier(level, index, maxSlots = getMaxAutoTapCursorSlots()) {
   return getAutoTapCursorTier(level, index, maxSlots) + 1;
-}
-
-/**
- * One Auto Tap wave performs `level` clicks cycling the visible cursors.
- * Returns how many white-click equivalents that wave is worth.
- */
-export function getAutoTapWaveMultiplierSum(level, maxSlots = getMaxAutoTapCursorSlots()) {
-  const safeLevel = Math.max(0, level | 0);
-  const count = Math.min(safeLevel, Math.max(1, maxSlots | 0));
-
-  if (safeLevel <= 0) {
-    return 0;
-  }
-
-  let sum = 0;
-  for (let i = 0; i < safeLevel; i += 1) {
-    sum += getAutoTapCursorMultiplier(safeLevel, i % count, maxSlots);
-  }
-
-  return sum;
 }

@@ -1,10 +1,16 @@
 /** Milestone achievements → permanent idle production bonuses (milk-like, no lore). */
 
+import { CLICKER_GENERATORS } from './generators.js';
+
 function hasEarnedAtLeast(totalCoinsEarned, threshold) {
   if (totalCoinsEarned?.gte) {
     return Boolean(totalCoinsEarned.gte(threshold));
   }
   return Number(totalCoinsEarned) >= threshold;
+}
+
+function generatorLabel(id) {
+  return CLICKER_GENERATORS.find((generator) => generator.id === id)?.label ?? id;
 }
 
 export const ACHIEVEMENTS = [
@@ -32,28 +38,28 @@ export const ACHIEVEMENTS = [
   {
     id: 'own-g1-10',
     name: 'Starter Pack',
-    description: 'Own 10 Generator 1',
+    description: `Own 10 ${generatorLabel('upgrade-1')}`,
     idleBonus: 0.01,
     check: (s) => (s.upgrades.find((u) => u.id === 'upgrade-1')?.level ?? 0) >= 10,
   },
   {
     id: 'own-g1-50',
     name: 'Generator Fan',
-    description: 'Own 50 Generator 1',
+    description: `Own 50 ${generatorLabel('upgrade-1')}`,
     idleBonus: 0.02,
     check: (s) => (s.upgrades.find((u) => u.id === 'upgrade-1')?.level ?? 0) >= 50,
   },
   {
     id: 'own-g5-25',
     name: 'Mid Tier',
-    description: 'Own 25 Generator 5',
+    description: `Own 25 ${generatorLabel('upgrade-5')}`,
     idleBonus: 0.02,
     check: (s) => (s.upgrades.find((u) => u.id === 'upgrade-5')?.level ?? 0) >= 25,
   },
   {
     id: 'own-g10-1',
     name: 'Top Shelf',
-    description: 'Own 1 Generator 10',
+    description: `Own 1 ${generatorLabel('upgrade-10')}`,
     idleBonus: 0.03,
     check: (s) => (s.upgrades.find((u) => u.id === 'upgrade-10')?.level ?? 0) >= 1,
   },

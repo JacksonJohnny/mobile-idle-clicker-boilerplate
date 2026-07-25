@@ -8,8 +8,8 @@ Reusable Phaser + Capacitor idle clicker foundation.
 - `src/controllers` — `ListScrollController` (visual scrollbar + finger scroll)
 - `src/data` — generators, click upgrades, `metaUpgrades.js`, `achievements.js`
 - `src/lib` — formulas (`clickerMath`) + session controller (`clickerController`) + Auto Tap + `prestige.js` + `saveState.js`
-- `src/services` — save I/O + versioned migrations, settings, feedback, storage adapter
-- `src/ui` — Phaser builders (no buy rules) + `metaUpgradeCopy` + `achievementLines` + token badge
+- `src/services` — save I/O + versioned migrations, settings, storage adapter
+- `src/ui` — Phaser builders (no buy rules) + feedback + tap HUD + `metaUpgradeCopy` + `achievementLines` + token badge
 - `src/scenes` — `ClickerScene` + `scenes/clicker/*` helpers (page builders, lists, overlays)
 
 ## Naming glossary
@@ -24,13 +24,14 @@ Keep save field `boosts` stable so forks and old saves stay compatible. Rename U
 
 ## Rebrand in 15 minutes
 
+0. Capacitor identity first: set `appId` and `appName` in `capacitor.config.json` (keep `webDir: "dist"`).
 1. Theme: `src/config/theme.js` + title in `src/config/uiText.js`
 2. Generators: `src/data/generators.js` (stable ids `upgrade-1` … `upgrade-20`)
 3. Click / Auto Tap: `src/data/upgrades.js`
 4. Meta-upgrades: `src/data/metaUpgrades.js`
 5. Prestige curve / Ascension Tokens: `src/lib/prestige.js`
 6. Loops / resolution: `src/config/gameConfig.js`
-7. Optional env: copy `.env.example` → `.env` (`VITE_SAVE_KEY`). Native `appId` → `capacitor.config.json`
+7. Optional env: copy `.env.example` → `.env` (`VITE_SAVE_KEY`)
 8. Run `npm test` and `npm run build`
 
 ### Changing save format without wiping players
@@ -42,7 +43,7 @@ Keep save field `boosts` stable so forks and old saves stay compatible. Rename U
 
 ## Core systems included
 
-- Wall-clock idle + offline catch-up (`savedAt`, `maxOfflineSeconds`; `null` = uncapped; resume modal if away ≥ 1s)
+- Wall-clock idle + offline catch-up (`savedAt`, `maxOfflineSeconds`; `null` = uncapped; resume modal only if gain > 0 **and** away ≥ 1s)
 - Decimal.js economy + Cookie Clicker–style formatting
 - Versioned save + checksum + soft salvage
 - Progressive catalog (`???` for next locked)
@@ -50,7 +51,7 @@ Keep save field `boosts` stable so forks and old saves stay compatible. Rename U
 - Auto Tap rings, color tiers, per-cursor floating gains
 - Meta-upgrades (efficiency / global / tap-%-of-idle / base multiplier); UPGRADE list sorted by price asc (STORE keeps unlock order)
 - Achievements → permanent idle %
-- Prestige → Ascension Tokens (+1% idle each); confirm countdown then red PRESTIGE; CANCEL blue; same-size buttons; never `| 0` on token counters (`toNonNegativeInt` recovers int32-wrapped negatives on load)
+- Prestige → Ascension Tokens (+1% idle each); confirm: same-size buttons, countdown then red PRESTIGE, CANCEL blue; counters via `toNonNegativeInt` (never `| 0` — int32 wrap)
 - STATUS tab (stats, multipliers, achievements; locked rows show `○ ???`)
 - STORE idle share % on auto generators
 - Bottom nav with full tab labels + ≥44px hit targets; overflow "…" only when tabs grow past 5
@@ -58,7 +59,7 @@ Keep save field `boosts` stable so forks and old saves stay compatible. Rename U
 
 ## Suggested expansion points
 
-- Missions / seasonal events: add `src/lib/objectivesEngine.js`
+- Missions / seasonal events: suggested future file `src/lib/objectivesEngine.js` (does not exist yet — add when you need it)
 - Permanent charms / milk-style layers beyond achievements (if your genre needs them)
 
 See [README.md](README.md) for full gameplay and save docs.

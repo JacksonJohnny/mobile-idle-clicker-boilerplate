@@ -64,7 +64,7 @@ export function unpackEnvelope(parsed, storageKey = SAVE_KEY) {
     return {
       state: parsed,
       version: 1,
-      verified: true,
+      verified: false,
     };
   }
 
@@ -148,5 +148,5 @@ export function loadGameState() {
 
 export function saveGameState(state) {
   const normalized = normalizeSaveState(state);
-  storageSetItem(SAVE_KEY, packSavePayload(normalized));
+  return storageSetItem(SAVE_KEY, packSavePayload(normalized));
 }

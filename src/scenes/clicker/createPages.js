@@ -1,8 +1,9 @@
-import { COLORS, FONT_FAMILIES, UI_LAYOUT } from '../../config/theme.js';
+import { COLORS, FONT_FAMILIES } from '../../config/theme.js';
 import { UI_TEXT } from '../../config/uiText.js';
 import { normalizeBuyAmount } from '../../config/buyAmounts.js';
 import { ListScrollController } from '../../controllers/ListScrollController.js';
 import { buildMetaUpgradesView } from '../../ui/metaUpgradesView.js';
+import { buildSectionTitle } from '../../ui/sectionTitle.js';
 import { buildStatusView } from '../../ui/statusView.js';
 import { buildPrestigeView } from '../../ui/prestigeView.js';
 import { buildSettingsView, buildSettingsButton } from '../../ui/settingsView.js';
@@ -74,13 +75,7 @@ export function createStorePage(scene) {
     listHeight,
   };
 
-  scene.storeTitle = scene.add
-    .text(28, UI_LAYOUT.sectionTitleY, UI_TEXT.storeTitle, {
-      fontFamily: FONT_FAMILIES.display,
-      fontSize: '24px',
-      color: COLORS.accentText,
-    })
-    .setOrigin(0, 0.5);
+  scene.storeTitle = buildSectionTitle(scene, UI_TEXT.storeTitle);
 
   // Center buy modes in the gap between STORE title and the list panel.
   const titleBottom = scene.storeTitle.y + scene.storeTitle.height / 2;
@@ -113,13 +108,7 @@ export function createMetaUpgradePage(scene) {
   const layout = createFullHeightListLayout(scene, { rowHeight: 98, rowGap: 16, panelPadding: 12 });
   scene.metaLayout = layout;
 
-  scene.metaUpgradesTitle = scene.add
-    .text(28, UI_LAYOUT.sectionTitleY, UI_TEXT.metaUpgradesTitle, {
-      fontFamily: FONT_FAMILIES.display,
-      fontSize: '24px',
-      color: COLORS.accentText,
-    })
-    .setOrigin(0, 0.5);
+  scene.metaUpgradesTitle = buildSectionTitle(scene, UI_TEXT.metaUpgradesTitle);
 
   scene.metaPanelBg = scene.add
     .rectangle(width / 2, layout.panelCenterY, width - 34, layout.panelHeight, COLORS.storePanel, 0.86)

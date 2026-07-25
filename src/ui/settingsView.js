@@ -1,5 +1,6 @@
-import { COLORS, FONT_FAMILIES, UI_LAYOUT } from '../config/theme.js';
+import { COLORS, FONT_FAMILIES } from '../config/theme.js';
 import { UI_TEXT } from '../config/uiText.js';
+import { buildSectionTitle } from './sectionTitle.js';
 
 function createToggle(scene, label, description, settingKey, y, onToggle) {
   const width = scene.scale.width;
@@ -23,13 +24,7 @@ function createToggle(scene, label, description, settingKey, y, onToggle) {
 }
 
 export function buildSettingsView({ scene, container, onToggle }) {
-  const title = scene.add
-    .text(28, UI_LAYOUT.sectionTitleY, UI_TEXT.settingsTitle, {
-      fontFamily: FONT_FAMILIES.display,
-      fontSize: '24px',
-      color: COLORS.accentText,
-    })
-    .setOrigin(0, 0.5);
+  const title = buildSectionTitle(scene, UI_TEXT.settingsTitle);
   const items = [createToggle(scene, UI_TEXT.sound, UI_TEXT.soundDescription, 'soundEnabled', 340, onToggle)];
   const objects = [title];
   items.forEach((item) =>

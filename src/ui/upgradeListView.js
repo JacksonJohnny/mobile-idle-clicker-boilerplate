@@ -1,5 +1,7 @@
 import { COLORS, FONT_FAMILIES } from '../config/theme.js';
+import { UI_TEXT } from '../config/uiText.js';
 import { GENERATOR_EFFICIENCY_STAR_MAX } from '../data/metaUpgrades.js';
+import { wasTapNotDrag } from './pointer.js';
 
 const MIN_BUY_HIT = 44;
 /** Half of row width inset (`width - 58`). */
@@ -24,13 +26,13 @@ export function buildUpgradeListView({ scene, container, upgrades, layout, onBuy
   return upgrades.map((upgrade, index) => {
     const y = startY + index * step;
     const rowBg = scene.add
-      .rectangle(scene.scale.width / 2, y, scene.scale.width - 58, rowHeight, 0x133046, 0.95)
-      .setStrokeStyle(2, 0x3f7ca4);
+      .rectangle(scene.scale.width / 2, y, scene.scale.width - 58, rowHeight, COLORS.upgradeRow, 0.95)
+      .setStrokeStyle(2, COLORS.upgradeRowBorder);
     const label = scene.add
       .text(38, y - rowHeight * 0.22, '', {
         fontFamily: FONT_FAMILIES.body,
         fontSize: labelFontSize,
-        color: '#f4f7fa',
+        color: COLORS.upgradeText,
         fontStyle: '700',
       })
       .setOrigin(0, 0.5);
@@ -38,7 +40,7 @@ export function buildUpgradeListView({ scene, container, upgrades, layout, onBuy
       .text(levelX, y - rowHeight * 0.22, '', {
         fontFamily: FONT_FAMILIES.body,
         fontSize: labelFontSize,
-        color: '#f4f7fa',
+        color: COLORS.upgradeText,
         fontStyle: '700',
       })
       .setOrigin(1, 0.5);
@@ -47,7 +49,7 @@ export function buildUpgradeListView({ scene, container, upgrades, layout, onBuy
         .text(0, y - rowHeight * 0.22, '★', {
           fontFamily: 'Arial, "Segoe UI Symbol", sans-serif',
           fontSize: starFontSize,
-          color: '#ffd43b',
+          color: COLORS.efficiencyPip,
         })
         .setOrigin(0, 0.5)
         .setVisible(false),
@@ -56,7 +58,7 @@ export function buildUpgradeListView({ scene, container, upgrades, layout, onBuy
       .text(38, y + rowHeight * 0.22, '', {
         fontFamily: FONT_FAMILIES.body,
         fontSize: infoFontSize,
-        color: '#9dd7ff',
+        color: COLORS.upgradeInfo,
         wordWrap: { width: infoMaxWidth },
       })
       .setOrigin(0, 0.5);
@@ -65,7 +67,7 @@ export function buildUpgradeListView({ scene, container, upgrades, layout, onBuy
       .setStrokeStyle(2, COLORS.primaryBorder)
       .setInteractive({ useHandCursor: true });
     const buyText = scene.add
-      .text(buyButtonX, y, 'BUY', {
+      .text(buyButtonX, y, UI_TEXT.buy, {
         fontFamily: FONT_FAMILIES.display,
         fontSize: buyFontSize,
         color: COLORS.primaryText,
@@ -78,9 +80,8 @@ export function buildUpgradeListView({ scene, container, upgrades, layout, onBuy
     });
     buyButton.on('pointerup', (pointer) => {
       const start = buyButton.pointerDownAt;
-      const moved = start && Math.hypot(pointer.x - start.x, pointer.y - start.y) > 14;
       buyButton.pointerDownAt = null;
-      if (!moved) {
+      if (wasTapNotDrag(start, pointer)) {
         onBuy(upgrade);
       }
     });

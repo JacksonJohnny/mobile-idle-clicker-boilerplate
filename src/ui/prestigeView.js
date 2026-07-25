@@ -1,17 +1,12 @@
-import { COLORS, FONT_FAMILIES, UI_LAYOUT } from '../config/theme.js';
+import { COLORS, FONT_FAMILIES } from '../config/theme.js';
 import { UI_TEXT } from '../config/uiText.js';
 import { formatCoins } from '../lib/clickerMath.js';
 import { createAscensionTokenBadge } from './ascensionTokenBadge.js';
+import { buildSectionTitle } from './sectionTitle.js';
 
 export function buildPrestigeView({ scene, container, onRequestPrestige }) {
   const width = scene.scale.width;
-  const title = scene.add
-    .text(28, UI_LAYOUT.sectionTitleY, UI_TEXT.prestigeTitle, {
-      fontFamily: FONT_FAMILIES.display,
-      fontSize: '24px',
-      color: COLORS.accentText,
-    })
-    .setOrigin(0, 0.5);
+  const title = buildSectionTitle(scene, UI_TEXT.prestigeTitle);
 
   const tokenBadge = createAscensionTokenBadge(scene, 28, 310, {
     size: 16,

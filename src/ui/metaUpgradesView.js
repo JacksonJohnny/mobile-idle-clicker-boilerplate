@@ -1,4 +1,5 @@
 import { COLORS, FONT_FAMILIES } from '../config/theme.js';
+import { wasTapNotDrag } from './pointer.js';
 
 /** UPGRADE-tab list rows for meta-upgrades (catalog lives in data/metaUpgrades.js). */
 export function buildMetaUpgradesView({ scene, container, metaUpgrades, layout, onPointerDown, onBuy }) {
@@ -36,9 +37,8 @@ export function buildMetaUpgradesView({ scene, container, metaUpgrades, layout, 
     });
     buyButton.on('pointerup', (pointer) => {
       const start = buyButton.pointerDownAt;
-      const moved = start && Math.hypot(pointer.x - start.x, pointer.y - start.y) > 14;
       buyButton.pointerDownAt = null;
-      if (!moved) {
+      if (wasTapNotDrag(start, pointer)) {
         onBuy(meta);
       }
     });

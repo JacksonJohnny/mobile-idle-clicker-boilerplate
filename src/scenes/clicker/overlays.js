@@ -60,11 +60,16 @@ export function showOfflineReturn(scene, offline) {
     })
     .setOrigin(0.5);
   const awayText = scene.add
-    .text(width / 2, height / 2 - 68, `Away for ${formatOfflineDuration(offline.elapsedSeconds)}`, {
-      fontFamily: FONT_FAMILIES.body,
-      fontSize: '23px',
-      color: COLORS.overlayText,
-    })
+    .text(
+      width / 2,
+      height / 2 - 68,
+      UI_TEXT.awayFor.replace('{duration}', formatOfflineDuration(offline.elapsedSeconds)),
+      {
+        fontFamily: FONT_FAMILIES.body,
+        fontSize: '23px',
+        color: COLORS.overlayText,
+      },
+    )
     .setOrigin(0.5);
   const earningsLabel = scene.add
     .text(width / 2, height / 2 - 12, UI_TEXT.offlineEarnings, {
@@ -75,7 +80,7 @@ export function showOfflineReturn(scene, offline) {
     })
     .setOrigin(0.5);
   const earnings = scene.add
-    .text(width / 2, height / 2 + 34, `+${formatCoins(offline.gain)} coins`, {
+    .text(width / 2, height / 2 + 34, UI_TEXT.offlineGain.replace('{amount}', formatCoins(offline.gain)), {
       fontFamily: FONT_FAMILIES.display,
       fontSize: '30px',
       color: COLORS.positiveText,
