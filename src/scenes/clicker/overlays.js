@@ -162,8 +162,8 @@ function showConfirmDialog(
   const gapTitleBody = 28;
   const gapBodyButtons = 40;
   const gapButtons = 18;
-  const confirmH = 60;
-  const cancelH = 52;
+  const buttonWidth = contentWidth;
+  const buttonHeight = 56;
 
   const readyFill = danger ? COLORS.danger : COLORS.primary;
   const readyBorder = danger ? COLORS.dangerBorder : COLORS.primaryBorder;
@@ -190,14 +190,14 @@ function showConfirmDialog(
     .setOrigin(0.5);
 
   const contentHeight =
-    titleText.height + gapTitleBody + bodyText.height + gapBodyButtons + confirmH + gapButtons + cancelH;
+    titleText.height + gapTitleBody + bodyText.height + gapBodyButtons + buttonHeight + gapButtons + buttonHeight;
   const panelHeight = contentHeight + padY * 2;
   const stackTop = cy - contentHeight / 2;
 
   const titleY = stackTop + titleText.height / 2;
   const bodyY = titleY + titleText.height / 2 + gapTitleBody + bodyText.height / 2;
-  const confirmY = bodyY + bodyText.height / 2 + gapBodyButtons + confirmH / 2;
-  const cancelY = confirmY + confirmH / 2 + gapButtons + cancelH / 2;
+  const confirmY = bodyY + bodyText.height / 2 + gapBodyButtons + buttonHeight / 2;
+  const cancelY = confirmY + buttonHeight / 2 + gapButtons + buttonHeight / 2;
 
   titleText.setPosition(cx, titleY);
   bodyText.setPosition(cx, bodyY);
@@ -207,7 +207,10 @@ function showConfirmDialog(
     .rectangle(cx, cy, panelWidth, panelHeight, COLORS.overlayPanel, 1)
     .setStrokeStyle(3, COLORS.overlayBorder);
 
-  const confirmButton = scene.add.rectangle(cx, confirmY, contentWidth, confirmH, readyFill);
+  const confirmButton = scene.add
+    .rectangle(cx, confirmY, buttonWidth, buttonHeight, readyFill)
+    .setOrigin(0.5)
+    .setStrokeStyle(2, readyBorder);
   const confirmText = scene.add
     .text(cx, confirmY, confirmLabel, {
       fontFamily: FONT_FAMILIES.display,
@@ -216,7 +219,7 @@ function showConfirmDialog(
     })
     .setOrigin(0.5);
 
-  let confirmReady = delaySeconds <= 0;
+  let confirmReady = false;
   let countdownEvent = null;
 
   function setConfirmReady() {
@@ -226,8 +229,8 @@ function showConfirmDialog(
     confirmButton.setInteractive({ useHandCursor: true });
   }
 
-  if (confirmReady) {
-    confirmButton.setStrokeStyle(2, readyBorder).setInteractive({ useHandCursor: true });
+  if (delaySeconds <= 0) {
+    setConfirmReady();
   } else {
     confirmButton.setFillStyle(COLORS.disabled).setStrokeStyle(2, COLORS.disabledBorder);
     confirmText.setText(String(delaySeconds)).setColor(COLORS.disabledText);
@@ -250,7 +253,8 @@ function showConfirmDialog(
   }
 
   const cancelButton = scene.add
-    .rectangle(cx, cancelY, contentWidth, cancelH, COLORS.primary)
+    .rectangle(cx, cancelY, buttonWidth, buttonHeight, COLORS.primary)
+    .setOrigin(0.5)
     .setStrokeStyle(2, COLORS.primaryBorder)
     .setInteractive({ useHandCursor: true });
   const cancelText = scene.add

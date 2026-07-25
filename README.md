@@ -128,7 +128,8 @@ Catálogo padrão: `tap-power` + `auto-tap`, geradores `upgrade-1`…`upgrade-20
 - Soft reset limpa: coins, níveis da STORE, meta-upgrades comprados (`boosts`).
 - Mantém: tokens, achievements, stats all-time.
 - ★ amarelas na STORE = efficiency pips, **não** Ascension Tokens.
-- Confirmação obrigatória: botão bloqueado com countdown **5 → 1**, depois **vermelho** + `PRESTIGE` clicável (CANCEL sempre livre).
+- Confirmação obrigatória: countdown **5 → 1** no botão de cima (mesmo tamanho do CANCEL), depois **vermelho** + `PRESTIGE` clicável; CANCEL azul e sempre livre.
+- Contadores de tokens / prestige usam inteiro seguro (`toNonNegativeInt` em [`prestige.js`](src/lib/prestige.js)) — **não** usar `| 0` (estoura em ~2.1B e vira negativo).
 
 ### Auto Tap
 

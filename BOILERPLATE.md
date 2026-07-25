@@ -50,7 +50,7 @@ Keep save field `boosts` stable so forks and old saves stay compatible. Rename U
 - Auto Tap rings, color tiers, per-cursor floating gains
 - Meta-upgrades (efficiency / global / tap-%-of-idle / base multiplier); UPGRADE list sorted by price asc (STORE keeps unlock order)
 - Achievements → permanent idle %
-- Prestige → Ascension Tokens (+1% idle each); confirm is red + 5s countdown before clickable
+- Prestige → Ascension Tokens (+1% idle each); confirm countdown then red PRESTIGE; CANCEL blue; same-size buttons; never `| 0` on token counters
 - STATUS tab (stats, multipliers, achievements; locked rows show `○ ???`)
 - STORE idle share % on auto generators
 - Bottom nav with full tab labels + ≥44px hit targets; overflow "…" only when tabs grow past 5
