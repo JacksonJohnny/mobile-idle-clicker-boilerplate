@@ -26,10 +26,11 @@ Short fork/rebrand guide: [`BOILERPLATE.md`](BOILERPLATE.md). Portuguese README:
 - **STORE** tab: buy **×1 / ×10 / ×25 / MAX** (no hold-to-buy); unlock order; progressive catalog with `???`; idle generators show **% of production**.
 - Idle via **wall clock** + offline earnings (optional cap; default **uncapped**).
 - Achievements with permanent idle % bonus (locked: `○ ???`).
-- Prestige → **Ascension Tokens** (purple square) with **red** confirm and **5s** countdown.
+- Prestige → **Ascension Tokens** (purple square) with **red** confirm, **5s** countdown, same-size CANCEL (blue).
+- Token counters use `toNonNegativeInt` — never `| 0` (int32 overflow).
 - Tabs: UPGRADE → STORE → TAP → STATUS → PRESTIGE (+ settings); **full** nav labels (≥44px; overflow `…` only past 5 tabs).
 - Versioned save (`SAVE_VERSION = 10`) with migrations and checksum.
-- Web / Android / iOS builds; Vitest coverage for economy, prestige, achievements, save.
+- Web / Android / iOS builds; Vitest (economy, prestige, achievements, save, settings, feedback).
 
 ## Naming glossary (important for forks)
 
@@ -98,6 +99,7 @@ Key files:
 | Page builders | [`src/scenes/clicker/createPages.js`](src/scenes/clicker/createPages.js) |
 | Theme / copy | [`theme.js`](src/config/theme.js), [`uiText.js`](src/config/uiText.js) |
 | Buy modes | [`src/config/buyAmounts.js`](src/config/buyAmounts.js) |
+| Feedback / tap HUD | [`src/ui/feedback.js`](src/ui/feedback.js), [`src/ui/tapHud.js`](src/ui/tapHud.js) |
 | Save | [`gameConfig.js`](src/config/gameConfig.js), [`saveStorage.js`](src/services/saveStorage.js), [`saveMigrations.js`](src/services/saveMigrations.js) |
 | Catalogs | [`generators.js`](src/data/generators.js), [`upgrades.js`](src/data/upgrades.js), [`metaUpgrades.js`](src/data/metaUpgrades.js), [`achievements.js`](src/data/achievements.js) |
 | Meta UI | [`src/ui/metaUpgradesView.js`](src/ui/metaUpgradesView.js), [`metaUpgradeCopy.js`](src/ui/metaUpgradeCopy.js) |
@@ -134,7 +136,7 @@ Default catalog: `tap-power` + `auto-tap`, generators `upgrade-1`…`upgrade-20`
 ### Auto Tap
 
 - +1 click / 10s per level (wave).
-- Up to **63** cursors in **2 rings**; then recolors (power tier+1).
+- Auto Tap: up to **63** slots (`AUTO_TAP_MAX_SLOTS`); orbit layout is visual-only.
 - Visual derived from the `auto-tap` `level` — no extra save field.
 
 ### Idle and offline
@@ -180,7 +182,7 @@ Horizontal swipe between pages; vertical scroll in lists. Bottom nav with full n
 
 ```js
 // src/config/gameConfig.js
-GAME_CONFIG = { width: 540, height: 960, backgroundColor: '#111822' }
+GAME_CONFIG = { width: 540, height: 960, backgroundColor: '#081018' }
 LOOP_CONFIG = {
   autoSaveDelayMs: 10000,
   maxOfflineSeconds: null, // null = uncapped offline
@@ -244,12 +246,13 @@ Autosave every 10s + flush on blur / `pagehide` / `beforeunload`. Reset: `?reset
 
 ## Customization
 
+0. Capacitor — `capacitor.config.json` (`appId`, `appName`)
 1. Visual — `src/config/theme.js`
-2. Copy — `src/config/uiText.js`
+2. Copy — `src/config/uiText.js` (also sets `document.title`)
 3. Resolution / loops / save — `src/config/gameConfig.js`
 4. Buy modes — `src/config/buyAmounts.js`
 5. Generators — `src/data/generators.js`
-6. Click / Auto Tap — `src/data/upgrades.js` + `src/lib/autoTapProgress.js`
+6. Click / Auto Tap — `src/data/upgrades.js` + `src/lib/autoTapProgress.js` (`AUTO_TAP_MAX_SLOTS`)
 7. Meta-upgrades — `src/data/metaUpgrades.js` (save still uses `boosts`)
 8. BASE MULTIPLIER tiers — `src/data/baseMultiplierTiers.json`
 9. Prestige — `src/lib/prestige.js`
